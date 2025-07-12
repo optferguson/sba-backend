@@ -1,584 +1,151 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="SBAFG is the most trusted place to buy, sell, and use cryptocurrency. Track live prices and jump start your portfolio today.">
-    <meta name="keywords" content="crypto, cryptocurrency, bitcoin, ethereum, real-time price, portfolio, buy crypto, sell crypto, SBAFG">
-    <meta name="author" content="SBAFG">
+<script>
+    // ✅ Your live backend server address
+    const API_BASE_URL = 'https://sba-backend-iyre.onrender.com';
 
-    <title>SBAFG - Live Crypto Prices</title>
-
-    <style>
-        /* --- General Body and Font Styles --- */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 24px;
-            color: #121212;
-            background-color: #f7f9fc;
-        }
-
-        /* --- Header Styles --- */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 48px;
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 10px; /* Space between logo shape and text */
-        }
-        
-        .logo-design {
-            width: 28px;
-            height: 28px;
-            background-color: #0052FF;
-            border-radius: 6px;
-        }
-
-        .logo-text {
-            font-size: 28px;
-            font-weight: bold;
-            color: #0052FF;
-        }
-
-        .header-buttons {
-            display: flex;
-            align-items: center;
-            gap: 16px; /* Space between buttons */
-        }
-
-        .log-in-btn-header {
-            background: transparent;
-            border: none;
-            color: #0052FF;
-            font-weight: bold;
-            font-size: 16px;
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        .sign-up-btn-header {
-            background-color: #0052FF;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .hamburger-menu {
-            width: 24px;
-            height: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            cursor: pointer;
-        }
-
-        .hamburger-menu span {
-            display: block;
-            width: 100%;
-            height: 3px;
-            background-color: #121212;
-        }
-        
-        /* --- Main Content (Sign-up form) Styles --- */
-        .main-content {
-            max-width: 500px;
-            margin: 0 auto;
-            text-align: center;
-        }
-
-        .main-content a {
-            text-decoration: none;
-            color: #121212;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        .main-content h1 {
-            font-size: 48px;
-            font-weight: 700;
-            line-height: 1.2;
-            margin-top: 24px;
-            margin-bottom: 16px;
-        }
-
-        .main-content p {
-            font-size: 20px;
-            color: #5d6a7e;
-            line-height: 1.5;
-            margin-bottom: 32px;
-        }
-
-        .email-label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            text-align: left;
-        }
-
-        .email-input {
-            width: 100%;
-            padding: 16px;
-            border: 1px solid #dcdcdc;
-            border-radius: 4px;
-            font-size: 16px;
-            margin-bottom: 16px;
-            box-sizing: border-box;
-        }
-
-        .sign-up-btn-main {
-            background-color: #0052FF;
-            color: white;
-            border: none;
-            padding: 16px;
-            width: 100%;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        /* --- Crypto Price Grid Styles --- */
-        .crypto-section {
-            max-width: 540px;
-            margin: 60px auto 0;
-        }
-
-        .crypto-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-
-        .crypto-card {
-            background-color: #ffffff;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s ease-in-out;
-        }
-
-        .crypto-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .crypto-title {
-            display: flex;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .crypto-logo {
-            width: 40px;
-            height: 40px;
-            margin-right: 12px;
-        }
-
-        .crypto-name {
-            font-size: 20px;
-            font-weight: 600;
-        }
-        
-        .crypto-price {
-            font-size: 22px;
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-
-        .crypto-change {
-            font-size: 18px;
-            font-weight: 600;
-        }
-        
-        .positive { color: #059669; }
-        .negative { color: #DC2626; }
-        .neutral { color: #6B7280; }
-        
-        /* --- Modal Styles (for both Sign-up and Log-in) --- */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.5); /* Dim background */
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 450px;
-            position: relative;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        .modal-close-btn {
-            color: #aaa;
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .modal-content h2 {
-            margin-top: 0;
-            margin-bottom: 24px;
-            text-align: center;
-        }
-        
-        .modal-form label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .modal-form input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 16px;
-            border-radius: 4px;
-            border: 1px solid #dcdcdc;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        
-        .modal-form button {
-             background-color: #0052FF;
-            color: white;
-            border: none;
-            padding: 16px;
-            width: 100%;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 8px;
-        }
-        
-        /* --- Protected Data Section Styles --- */
-        .protected-data-section {
-            max-width: 540px;
-            margin: 60px auto;
-            text-align: center;
-            padding: 24px;
-            background-color: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        
-        .protected-data-section h2 {
-            margin-top: 0;
-        }
-
-        .protected-data-section button {
-            background-color: #059669;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        
-        #data-result {
-            margin-top: 16px;
-            font-size: 16px;
-            color: #5d6a7e;
-        }
-    </style>
-</head>
-<body>
-
-    <header class="header">
-        <div class="logo-container">
-            <div class="logo-design"></div>
-            <div class="logo-text">SBAFG</div>
-        </div>
-        <div class="header-buttons">
-            <button class="log-in-btn-header" id="header-login-btn">Log in</button>
-            <button class="sign-up-btn-header" id="header-signup-btn">Sign up</button>
-        </div>
-        <div class="hamburger-menu">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-    </header>
-
-    <main class="main-content">
-        <p>
-            <a id="jump-start-link"><strong>₿ Jump start your portfolio &rarr;</strong></a>
-        </p>
-        <h1>The future of money is here</h1>
-        <p>We're the most trusted place for people and businesses to buy, sell, and use crypto.</p>
-        <form>
-            <label for="email" class="email-label">Email address</label>
-            <input type="email" id="email" class="email-input" placeholder="satoshi@nakamoto.com">
-            <button type="submit" class="sign-up-btn-main" id="main-signup-btn">Sign up</button>
-        </form>
-    </main>
-
-    <section class="crypto-section">
-        <div class="crypto-grid">
-            <div class="crypto-card">
-                <div class="crypto-title"><img src="https://assets.coingecko.com/coins/images/1/large/bitcoin.png" alt="Bitcoin Logo" class="crypto-logo"><span class="crypto-name">Bitcoin</span></div>
-                <div class="crypto-price" id="bitcoin-price">$0.00</div>
-                <div class="crypto-change" id="bitcoin-change">0.00%</div>
-            </div>
-            <div class="crypto-card">
-                <div class="crypto-title"><img src="https://assets.coingecko.com/coins/images/279/large/ethereum.png" alt="Ethereum Logo" class="crypto-logo"><span class="crypto-name">Ethereum</span></div>
-                <div class="crypto-price" id="ethereum-price">$0.00</div>
-                <div class="crypto-change" id="ethereum-change">0.00%</div>
-            </div>
-            <div class="crypto-card">
-                <div class="crypto-title"><img src="https://assets.coingecko.com/coins/images/325/large/Tether.png" alt="Tether Logo" class="crypto-logo"><span class="crypto-name">Tether</span></div>
-                <div class="crypto-price" id="tether-price">$0.00</div>
-                <div class="crypto-change" id="tether-change">0.00%</div>
-            </div>
-            <div class="crypto-card">
-                <div class="crypto-title"><img src="https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png" alt="XRP Logo" class="crypto-logo"><span class="crypto-name">XRP</span></div>
-                <div class="crypto-price" id="xrp-price">$0.00</div>
-                <div class="crypto-change" id="xrp-change">0.00%</div>
-            </div>
-            <div class="crypto-card">
-                <div class="crypto-title"><img src="https://assets.coingecko.com/coins/images/4128/large/solana.png" alt="Solana Logo" class="crypto-logo"><span class="crypto-name">Solana</span></div>
-                <div class="crypto-price" id="solana-price">$0.00</div>
-                <div class="crypto-change" id="solana-change">0.00%</div>
-            </div>
-            <div class="crypto-card">
-                <div class="crypto-title"><img src="https://assets.coingecko.com/coins/images/6319/large/usdc.png" alt="USDC Logo" class="crypto-logo"><span class="crypto-name">USDC</span></div>
-                <div class="crypto-price" id="usdc-price">$0.00</div>
-                <div class="crypto-change" id="usdc-change">0.00%</div>
-            </div>
-        </div>
-    </section>
-
-    <section class="protected-data-section">
-        <h2>My Protected Data</h2>
-        <p>This button will only work if your server has a valid session for the user.</p>
-        <button id="get-data-btn">Get My Data</button>
-        <p id="data-result"></p>
-    </section>
-
-    <div id="signup-modal" class="modal">
-        <div class="modal-content">
-            <span id="signup-close-btn" class="modal-close-btn">&times;</span>
-            <h2>Create your account</h2>
-            <form id="signup-form-modal" class="modal-form"> <label for="modal-fullname">Full Name</label>
-                <input type="text" id="modal-fullname" required>
-
-                <label for="modal-email">Email</label>
-                <input type="email" id="modal-email" required>
-                
-                <label for="modal-phone">Phone Number</label>
-                <input type="tel" id="modal-phone" required>
-
-                <label for="modal-address">Address</label>
-                <input type="text" id="modal-address" required>
-
-                <label for="modal-city">City</label>
-                <input type="text" id="modal-city" required>
-
-                <label for="modal-state">State</label>
-                <input type="text" id="modal-state" required>
-
-                <label for="modal-zip">Zip Code</label>
-                <input type="text" id="modal-zip" required>
-
-                <label for="modal-username">Desired Username</label>
-                <input type="text" id="modal-username" required>
-                
-                <label for="modal-password">Desired Password</label>
-                <input type="password" id="modal-password" required>
-
-                <button type="submit">Create Account</button>
-            </form>
-        </div>
-    </div>
+    /* --- Real-Time Crypto Price Logic --- */
+    const coins = {
+        bitcoin: { apiId: 'bitcoin', priceEl: 'bitcoin-price', changeEl: 'bitcoin-change' },
+        ethereum: { apiId: 'ethereum', priceEl: 'ethereum-price', changeEl: 'ethereum-change' },
+        tether: { apiId: 'tether', priceEl: 'tether-price', changeEl: 'tether-change' },
+        xrp: { apiId: 'ripple', priceEl: 'xrp-price', changeEl: 'xrp-change' },
+        solana: { apiId: 'solana', priceEl: 'solana-price', changeEl: 'solana-change' },
+        usdc: { apiId: 'usd-coin', priceEl: 'usdc-price', changeEl: 'usdc-change' }
+    };
     
-    <div id="login-modal" class="modal">
-        <div class="modal-content">
-            <span id="login-close-btn" class="modal-close-btn">&times;</span>
-            <h2>Welcome Back!</h2>
-            <form id="login-form-modal" class="modal-form"> <label for="login-username">Username</label>
-                <input type="text" id="login-username" required>
-                
-                <label for="login-password">Password</label>
-                <input type="password" id="login-password" required>
-
-                <button type="submit">Log in</button>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        /* --- Real-Time Crypto Price Logic --- */
-        const coins = {
-            bitcoin: { apiId: 'bitcoin', priceEl: 'bitcoin-price', changeEl: 'bitcoin-change' },
-            ethereum: { apiId: 'ethereum', priceEl: 'ethereum-price', changeEl: 'ethereum-change' },
-            tether: { apiId: 'tether', priceEl: 'tether-price', changeEl: 'tether-change' },
-            xrp: { apiId: 'ripple', priceEl: 'xrp-price', changeEl: 'xrp-change' },
-            solana: { apiId: 'solana', priceEl: 'solana-price', changeEl: 'solana-change' },
-            usdc: { apiId: 'usd-coin', priceEl: 'usdc-price', changeEl: 'usdc-change' }
-        };
-        
-        async function fetchCryptoPrices() {
-            const coinApiIds = Object.values(coins).map(coin => coin.apiId).join(',');
-            const apiUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${coinApiIds}&vs_currencies=usd&include_24hr_change=true`;
-            try {
-                const response = await fetch(apiUrl);
-                if (!response.ok) throw new Error(`API request failed`);
-                const data = await response.json();
-                for (const coinKey in coins) {
-                    const coinInfo = coins[coinKey];
-                    const coinData = data[coinInfo.apiId];
-                    if (coinData) {
-                        const price = coinData.usd;
-                        const change = coinData.usd_24h_change;
-                        const priceElement = document.getElementById(coinInfo.priceEl);
-                        const changeElement = document.getElementById(coinInfo.changeEl);
-                        priceElement.innerText = `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                        changeElement.classList.remove('positive', 'negative', 'neutral');
-                        if (change > 0) {
-                            changeElement.classList.add('positive');
-                            changeElement.innerText = `↑ ${change.toFixed(2)}%`;
-                        } else if (change < 0) {
-                            changeElement.classList.add('negative');
-                            changeElement.innerText = `↓ ${Math.abs(change).toFixed(2)}%`;
-                        } else {
-                            changeElement.classList.add('neutral');
-                            changeElement.innerText = `• 0.00%`;
-                        }
+    async function fetchCryptoPrices() {
+        const coinApiIds = Object.values(coins).map(coin => coin.apiId).join(',');
+        const apiUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${coinApiIds}&vs_currencies=usd&include_24hr_change=true`;
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error(`API request failed`);
+            const data = await response.json();
+            for (const coinKey in coins) {
+                const coinInfo = coins[coinKey];
+                const coinData = data[coinInfo.apiId];
+                if (coinData) {
+                    const price = coinData.usd;
+                    const change = coinData.usd_24h_change;
+                    const priceElement = document.getElementById(coinInfo.priceEl);
+                    const changeElement = document.getElementById(coinInfo.changeEl);
+                    priceElement.innerText = `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                    changeElement.classList.remove('positive', 'negative', 'neutral');
+                    if (change > 0) {
+                        changeElement.classList.add('positive');
+                        changeElement.innerText = `↑ ${change.toFixed(2)}%`;
+                    } else if (change < 0) {
+                        changeElement.classList.add('negative');
+                        changeElement.innerText = `↓ ${Math.abs(change).toFixed(2)}%`;
+                    } else {
+                        changeElement.classList.add('neutral');
+                        changeElement.innerText = `• 0.00%`;
                     }
                 }
-            } catch (error) {
-                console.error("Failed to fetch crypto data:", error);
             }
+        } catch (error) {
+            console.error("Failed to fetch crypto data:", error);
         }
-        fetchCryptoPrices();
-        setInterval(fetchCryptoPrices, 600000);
-
-        /* --- Authentication & UI Logic --- */
-        
-        // --- Modal Opening/Closing Logic ---
-        const signupModal = document.getElementById('signup-modal');
-        const loginModal = document.getElementById('login-modal');
-        const headerSignupBtn = document.getElementById('header-signup-btn');
-        const mainSignupBtn = document.getElementById('main-signup-btn');
-        const signupCloseBtn = document.getElementById('signup-close-btn');
-        const jumpStartLink = document.getElementById('jump-start-link');
-        const headerLoginBtn = document.getElementById('header-login-btn');
-        const loginCloseBtn = document.getElementById('login-close-btn');
-
-        const openSignupModal = () => { signupModal.style.display = 'flex'; };
-        const closeSignupModal = () => { signupModal.style.display = 'none'; };
-        const openLoginModal = () => { loginModal.style.display = 'flex'; };
-        const closeLoginModal = () => { loginModal.style.display = 'none'; };
-
-        headerSignupBtn.addEventListener('click', openSignupModal);
-        mainSignupBtn.addEventListener('click', (event) => {
-            event.preventDefault();
-            openSignupModal();
-        });
-        jumpStartLink.addEventListener('click', (event) => {
-            event.preventDefault();
-            openSignupModal();
-        });
-        signupCloseBtn.addEventListener('click', closeSignupModal);
-        headerLoginBtn.addEventListener('click', openLoginModal);
-        loginCloseBtn.addEventListener('click', closeLoginModal);
-        
-        window.addEventListener('click', (event) => {
-            if (event.target == signupModal) closeSignupModal();
-            if (event.target == loginModal) closeLoginModal();
-        });
-        
-        // --- Sign Up (via Backend) ---
-        document.getElementById('signup-form-modal').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            // Note: Your backend expects 'username' and 'password'.
-            // The other form fields are collected here but not sent in this example.
-            // A real backend would likely accept all these fields.
-            const username = document.getElementById('modal-username').value;
-            const password = document.getElementById('modal-password').value;
-            
-            try {
-                const response = await fetch('/signup', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const result = await response.json();
-                alert(result.message || result.error);
-                
-                if (response.ok) {
-                    document.getElementById('signup-form-modal').reset();
-                    closeSignupModal();
-                }
-            } catch (error) {
-                console.error('Signup failed:', error);
-                alert('An error occurred during sign up. Please try again.');
-            }
-        });
-
-// --- Login (via Backend) ---
-document.getElementById('login-form-modal').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const username = document.getElementById('login-username').value;
-    const password = document.getElementById('login-password').value;
-    
-    try {
-        const response = await fetch('/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
-
-        if (response.ok) {
-            // ✅ SUCCESS: Redirect to the user's dashboard page.
-            window.location.href = '/dashboard';
-        } else {
-            // If login fails, show the error message from the server.
-            const result = await response.json();
-            alert(result.error || 'Login failed. Please check your credentials.');
-        }
-    } catch (error) {
-        console.error('Login failed:', error);
-        alert('An error occurred during login. Please try again.');
     }
-});
-        // --- Get Protected Data (via Backend) ---
-        document.getElementById('get-data-btn').addEventListener('click', async () => {
-            try {
-                const response = await fetch('/my-data'); // Assumes cookie-based session
-                const result = await response.json();
-                document.getElementById('data-result').textContent = result.message || result.error;
-            } catch (error) {
-                 console.error('Failed to get data:', error);
-                 document.getElementById('data-result').textContent = "Failed to fetch data. Are you logged in?";
+    fetchCryptoPrices();
+    setInterval(fetchCryptoPrices, 600000);
+
+    /* --- Authentication & UI Logic --- */
+    
+    // --- Modal Opening/Closing Logic ---
+    const signupModal = document.getElementById('signup-modal');
+    const loginModal = document.getElementById('login-modal');
+    const headerSignupBtn = document.getElementById('header-signup-btn');
+    const mainSignupBtn = document.getElementById('main-signup-btn');
+    const signupCloseBtn = document.getElementById('signup-close-btn');
+    const jumpStartLink = document.getElementById('jump-start-link');
+    const headerLoginBtn = document.getElementById('header-login-btn');
+    const loginCloseBtn = document.getElementById('login-close-btn');
+
+    const openSignupModal = () => { signupModal.style.display = 'flex'; };
+    const closeSignupModal = () => { signupModal.style.display = 'none'; };
+    const openLoginModal = () => { loginModal.style.display = 'flex'; };
+    const closeLoginModal = () => { loginModal.style.display = 'none'; };
+
+    headerSignupBtn.addEventListener('click', openSignupModal);
+    mainSignupBtn.addEventListener('click', (event) => {
+        event.preventDefault();
+        openSignupModal();
+    });
+    jumpStartLink.addEventListener('click', (event) => {
+        event.preventDefault();
+        openSignupModal();
+    });
+    signupCloseBtn.addEventListener('click', closeSignupModal);
+    headerLoginBtn.addEventListener('click', openLoginModal);
+    loginCloseBtn.addEventListener('click', closeLoginModal);
+    
+    window.addEventListener('click', (event) => {
+        if (event.target == signupModal) closeSignupModal();
+        if (event.target == loginModal) closeLoginModal();
+    });
+    
+    // --- Sign Up (via Backend) ---
+    document.getElementById('signup-form-modal').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('modal-username').value;
+        const password = document.getElementById('modal-password').value;
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/signup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const result = await response.json();
+            alert(result.message || result.error);
+            
+            if (response.ok) {
+                document.getElementById('signup-form-modal').reset();
+                closeSignupModal();
             }
-        });
-    </script>
-</body>
-</html>
+        } catch (error) {
+            console.error('Signup failed:', error);
+            alert('An error occurred during sign up. Please try again.');
+        }
+    });
+
+    // --- Login (via Backend) ---
+    document.getElementById('login-form-modal').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (response.ok) {
+                // SUCCESS: Redirect to the user's dashboard page ON THE SERVER
+                window.location.href = `${API_BASE_URL}/dashboard`;
+            } else {
+                // If login fails, show the error message from the server.
+                const result = await response.json();
+                alert(result.error || 'Login failed. Please check your credentials.');
+            }
+        } catch (error) {
+            console.error('Login failed:', error);
+            alert('An error occurred during login. Please try again.');
+        }
+    });
+    
+    // --- Get Protected Data (via Backend) ---
+    document.getElementById('get-data-btn').addEventListener('click', async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/my-data`, {
+                credentials: 'include' // Important: sends cookies for session management
+            });
+            const result = await response.json();
+            document.getElementById('data-result').textContent = result.message || result.error;
+        } catch (error) {
+             console.error('Failed to get data:', error);
+             document.getElementById('data-result').textContent = "Failed to fetch data. Are you logged in?";
+        }
+    });
+</script>
